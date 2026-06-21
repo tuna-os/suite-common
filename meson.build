@@ -10,4 +10,5 @@ suite_common_sources = files(
   'suite_common/__init__.py',
   'suite_common/application.py',
   'suite_common/window.py',
+  'suite_common/webview.py',
 )
