@@ -17,7 +17,7 @@ class SuiteWindow(Adw.ApplicationWindow):
     webview. The WebKit bridge lands in suite-common #2.
     """
 
-    def __init__(self, app_name='App', **kwargs):
+    def __init__(self, app_name='App', use_tabs=True, **kwargs):
         super().__init__(**kwargs)
         self.set_title(app_name)
         self.set_default_size(1000, 700)
@@ -32,12 +32,19 @@ class SuiteWindow(Adw.ApplicationWindow):
                                      menu_model=self._build_menu())
         self.header_bar.pack_end(menu_button)
 
-        self.tab_view = Adw.TabView()
-        self.tab_bar = Adw.TabBar(view=self.tab_view)
-        self.toolbar_view.add_top_bar(self.tab_bar)
-        self.toolbar_view.set_content(self.tab_view)
+        # Apps that want a document-per-tab UI (Tables, Letters) get a TabView;
+        # apps with a custom layout (Decks' slide sidebar) pass use_tabs=False
+        # and call set_main_content().
+        if use_tabs:
+            self.tab_view = Adw.TabView()
+            self.tab_bar = Adw.TabBar(view=self.tab_view)
+            self.toolbar_view.add_top_bar(self.tab_bar)
+            self.toolbar_view.set_content(self.tab_view)
 
         self.set_content(self.toolbar_view)
+
+    def set_main_content(self, widget):
+        self.toolbar_view.set_content(widget)
 
     def _build_menu(self):
         menu = Gio.Menu()
