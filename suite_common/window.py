@@ -17,13 +17,17 @@ class SuiteWindow(Adw.ApplicationWindow):
     webview. The WebKit bridge lands in suite-common #2.
     """
 
-    def __init__(self, app_name='App', use_tabs=True, **kwargs):
+    def __init__(self, app_name='App', use_tabs=True, use_template=False,
+                 **kwargs):
         super().__init__(**kwargs)
         self.set_title(app_name)
-        # Letters idiom: comfortable default, but stays usable when narrow.
         self.set_default_size(800, 600)
         self.set_size_request(296, 360)
         self.update_property([Gtk.AccessibleProperty.LABEL], [app_name])
+
+        # Template-based windows (Letters) skip programmatic UI construction.
+        if use_template:
+            return
 
         self.toolbar_view = Adw.ToolbarView()
         self.toolbar_view.set_top_bar_style(Adw.ToolbarStyle.RAISED)  # Letters idiom
@@ -101,7 +105,8 @@ class SuiteWindow(Adw.ApplicationWindow):
 
     def toast(self, text, timeout=3):
         """Show a transient libadwaita toast."""
-        self.toast_overlay.add_toast(Adw.Toast(title=text, timeout=timeout))
+        if hasattr(self, 'toast_overlay'):
+            self.toast_overlay.add_toast(Adw.Toast(title=text, timeout=timeout))
 
     def _build_menu(self):
         # Access keys (mnemonics) per the GNOME HIG, as in Letters.
