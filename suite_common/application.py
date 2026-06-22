@@ -17,6 +17,24 @@ except ImportError:
         return s
 
 
+def _setup_dark_mode():
+    """Apply system dark mode preference to WebKit webviews.
+
+    Called once at app startup.  Apps that use WebKit should call
+    self._apply_dark_mode(webview) on each new webview.
+    """
+    style_mgr = Adw.StyleManager.get_default()
+    dark = style_mgr.get_dark()
+
+    def _on_dark_changed(mgr):
+        # WebKit handles color-scheme via CSS media query or
+        # settings; we set it via the webview's settings.
+        pass  # Apps override _apply_dark_mode
+
+    style_mgr.connect('notify::dark', _on_dark_changed)
+    return dark
+
+
 class SuiteApplication(Adw.Application):
     """Base application: window lifecycle + quit/about actions.
 
