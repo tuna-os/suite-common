@@ -20,9 +20,13 @@ class SuiteWindow(Adw.ApplicationWindow):
     def __init__(self, app_name='App', use_tabs=True, **kwargs):
         super().__init__(**kwargs)
         self.set_title(app_name)
-        self.set_default_size(1000, 700)
+        # Letters idiom: comfortable default, but stays usable when narrow.
+        self.set_default_size(800, 600)
+        self.set_size_request(296, 360)
+        self.update_property([Gtk.AccessibleProperty.LABEL], [app_name])
 
         self.toolbar_view = Adw.ToolbarView()
+        self.toolbar_view.set_top_bar_style(Adw.ToolbarStyle.RAISED)  # Letters idiom
 
         self.header_bar = Adw.HeaderBar()
         self.toolbar_view.add_top_bar(self.header_bar)
@@ -50,6 +54,41 @@ class SuiteWindow(Adw.ApplicationWindow):
 
     def set_main_content(self, widget):
         self.toolbar_view.set_content(widget)
+
+    def add_action_bar(self, primary=(), extended=(), more_menu=None):
+        """Letters-style centered action toolbar with a responsive split.
+
+        ``primary`` widgets are always visible; ``extended`` widgets collapse into
+        the ``more`` menu button below 500sp (the Letters formatting-toolbar idiom).
+        Returns the toolbar Box.
+        """
+        bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6,
+                      halign=Gtk.Align.CENTER)
+        bar.add_css_class('toolbar')
+        for widget in primary:
+            bar.append(widget)
+
+        self.toolbar_extended = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        for widget in extended:
+            self.toolbar_extended.append(widget)
+        bar.append(self.toolbar_extended)
+
+        self.toolbar_more = Gtk.MenuButton(icon_name='view-more-symbolic',
+                                           tooltip_text='More', visible=False)
+        self.toolbar_more.update_property([Gtk.AccessibleProperty.LABEL], ['More actions'])
+        if more_menu is not None:
+            self.toolbar_more.set_menu_model(more_menu)
+        bar.append(self.toolbar_more)
+
+        self.toolbar_view.add_top_bar(bar)
+        self.action_bar = bar
+
+        # Responsive: hide the extended box / show the more button when narrow.
+        bp = Adw.Breakpoint.new(Adw.BreakpointCondition.parse('max-width: 500sp'))
+        bp.add_setter(self.toolbar_extended, 'visible', False)
+        bp.add_setter(self.toolbar_more, 'visible', True)
+        self.add_breakpoint(bp)
+        return bar
 
     def toast(self, text, timeout=3):
         """Show a transient libadwaita toast."""
