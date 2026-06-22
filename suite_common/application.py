@@ -24,8 +24,20 @@ class SuiteApplication(Adw.Application):
         self.app_name = app_name
         self.version = version
 
+        # Apps may override/extend this before/after super().__init__.
+        self.shortcuts = {
+            'General': [
+                ('<primary>o', 'Open'),
+                ('<primary>s', 'Save'),
+                ('<primary>comma', 'Preferences'),
+                ('<primary>q', 'Quit'),
+            ],
+        }
+
         self._add_action('quit', lambda *a: self.quit(), ['<primary>q'])
         self._add_action('about', self._on_about)
+        self._add_action('preferences', self._on_preferences, ['<primary>comma'])
+        self._add_action('shortcuts', self._on_shortcuts, ['<primary>question'])
 
     def do_activate(self):
         win = self.props.active_window
@@ -44,6 +56,16 @@ class SuiteApplication(Adw.Application):
         self.add_action(action)
         if accels:
             self.set_accels_for_action(f'app.{name}', accels)
+
+    def _on_preferences(self, *args):
+        from .dialogs import SuitePreferencesDialog
+        SuitePreferencesDialog(self.app_name).present(self.props.active_window)
+
+    def _on_shortcuts(self, *args):
+        from .dialogs import build_shortcuts_dialog
+        win = build_shortcuts_dialog(self.shortcuts)
+        win.set_transient_for(self.props.active_window)
+        win.present()
 
     def _on_about(self, *args):
         about = Adw.AboutDialog(

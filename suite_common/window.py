@@ -41,13 +41,22 @@ class SuiteWindow(Adw.ApplicationWindow):
             self.toolbar_view.add_top_bar(self.tab_bar)
             self.toolbar_view.set_content(self.tab_view)
 
-        self.set_content(self.toolbar_view)
+        # Toast overlay wraps everything so any app can surface transient messages.
+        self.toast_overlay = Adw.ToastOverlay()
+        self.toast_overlay.set_child(self.toolbar_view)
+        self.set_content(self.toast_overlay)
 
     def set_main_content(self, widget):
         self.toolbar_view.set_content(widget)
 
+    def toast(self, text, timeout=3):
+        """Show a transient libadwaita toast."""
+        self.toast_overlay.add_toast(Adw.Toast(title=text, timeout=timeout))
+
     def _build_menu(self):
         menu = Gio.Menu()
+        menu.append('Preferences', 'app.preferences')
+        menu.append('Keyboard Shortcuts', 'app.shortcuts')
         menu.append('About', 'app.about')
         menu.append('Quit', 'app.quit')
         return menu
