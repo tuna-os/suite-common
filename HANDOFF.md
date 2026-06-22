@@ -55,6 +55,29 @@ himachal flatpak build+run pipeline. UI built in code to minimize first-build ri
 - [ ] decks scaffold mirroring tables
 - [ ] suite-common #2 WebKit bridge (port from Letters window.py new_webview/run_js)
 
+### Issue progress (goal: implement+build+test all open issues)
+- CLOSED (verified on himachal): suite-common #1-#5 (all); tables #1-#6, #8, #9, #10;
+  decks #1-#11 (all).  (25 issues)
+- Test recipes per repo: tables `just verify|csvtest|fmttest|multitest`;
+  decks `just verify|slidetest|presenttest|decktest|pdftest`; letters `just verify`.
+- REMAINING: tables #7 (cell formatting round-trip — Jspreadsheet getData doesn't expose
+  styles; needs getStyle+openpyxl style mapping); letters #1 epic, #3 (bridge), #4 (chrome),
+  #5 (file-IO) — deeper behaviour-preserving refactors of Letters' integrated editor.
+- letters #2 (subproject): DONE — suite-common is a meson subproject, importable, Letters
+  builds + launches on himachal. Bonus: fixed 3 pre-existing Letters build/runtime bugs
+  (stale weasyprint wheel 404 → network pip; window.blp breakpoint `setters:` + `styles[];`
+  syntax drift; WebKit 6.0 `set_enable_spell_checking` removed → guarded).
+
+### Hard-won gotchas (all in justfiles now)
+- App is single-instance (Gio.Application): `flatpak kill <id>` before each headless run,
+  else a stale instance is just *activated* and your --env (selftest) is ignored → empty log.
+- Need the session display: `XDG_RUNTIME_DIR=/run/user/$(id -u) WAYLAND_DISPLAY=wayland-0`.
+- Python stdout is buffered → use `--env=PYTHONUNBUFFERED=1` and `flush=True` for bridge asserts.
+- INCREMENTAL RSYNC BUG: `rsync src/x himachal:.../app/` flattens to `app/x`. ALWAYS
+  `rsync -az --delete /tmp/work/ himachal:~/dev/suite-work/` (whole tree) then `cp -a .../src/. src/`.
+- pip libs in flatpak: python3-deps module with `build-options.build-args:["--share=network"]`
+  (himachal pipeline). For Flathub → vendored wheels.
+
 ### Verified build recipe (himachal)
 - Project MUST live under `$HOME` (flatpaks get a private /tmp). Working copy: `~/dev/tables`.
 - `just build` = `flatpak run --cwd="$PWD" --filesystem=host org.flatpak.Builder --force-clean
