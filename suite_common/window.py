@@ -30,6 +30,8 @@ class SuiteWindow(Adw.ApplicationWindow):
         # Primary menu (about / quit) — shared chrome.
         menu_button = Gtk.MenuButton(icon_name='open-menu-symbolic',
                                      menu_model=self._build_menu())
+        menu_button.set_tooltip_text('Main Menu')
+        menu_button.update_property([Gtk.AccessibleProperty.LABEL], ['Main Menu'])
         self.header_bar.pack_end(menu_button)
 
         # Apps that want a document-per-tab UI (Tables, Letters) get a TabView;

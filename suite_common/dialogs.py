@@ -17,9 +17,23 @@ class SuitePreferencesDialog(Adw.PreferencesDialog):
         self.set_title('Preferences')
         page = Adw.PreferencesPage(title='General',
                                    icon_name='preferences-system-symbolic')
-        self.general_group = Adw.PreferencesGroup(title=app_name)
+        self.general_group = Adw.PreferencesGroup(title='Appearance')
+
+        # A real, working preference: force dark style via the style manager.
+        manager = Adw.StyleManager.get_default()
+        dark_row = Adw.SwitchRow(title='Dark Style',
+                                 subtitle='Always use the dark colour scheme')
+        dark_row.set_active(manager.get_dark())
+        dark_row.connect('notify::active', self._on_dark_toggled)
+        self.general_group.add(dark_row)
+
         page.add(self.general_group)
         self.add(page)
+
+    def _on_dark_toggled(self, row, _param):
+        manager = Adw.StyleManager.get_default()
+        manager.set_color_scheme(
+            Adw.ColorScheme.FORCE_DARK if row.get_active() else Adw.ColorScheme.DEFAULT)
 
 
 def build_shortcuts_dialog(groups):
