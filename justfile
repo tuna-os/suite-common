@@ -7,3 +7,7 @@ default:
 # Byte-compile the package to catch syntax errors without a full app build.
 check:
     python3 -m compileall suite_common
+
+# Lint Python source files.
+lint:
+    python3 -m compileall -q suite_common
