@@ -8,6 +8,14 @@ gi.require_version('Adw', '1')
 
 from gi.repository import Gtk, Gio, Adw  # noqa: E402
 
+# _() for translations.  The launcher script (tables.in / decks.in) sets
+# the text domain; this import provides a fallback during development.
+try:
+    from gettext import gettext as _
+except ImportError:
+    def _(s):
+        return s
+
 
 class SuiteApplication(Adw.Application):
     """Base application: window lifecycle + quit/about actions.
