@@ -1,6 +1,6 @@
 # suite-common
 
-Shared scaffold for the [hanthor](https://github.com/hanthor) GNOME office suite:
+Shared scaffold for the [TunaOS](https://github.com/tuna-os) GNOME office suite:
 
 | App | Repo |
 |-----|------|
