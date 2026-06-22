@@ -32,12 +32,12 @@ jobs:
       - name: Checkout tables
         uses: actions/checkout@v4
         with:
-          repository: hanthor/tables
+          repository: tuna-os/tables
           path: ../tables
       - name: Checkout decks
         uses: actions/checkout@v4
         with:
-          repository: hanthor/decks
+          repository: tuna-os/decks
           path: ../decks
       - name: Run Tables GUI test (L2)
         run: just guitest
