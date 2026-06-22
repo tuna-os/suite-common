@@ -1,18 +1,56 @@
-name: CI
+name: CI (suite-common)
 
 on:
   push:
   pull_request:
+  schedule:
+    # Nightly L2/L3 dogtail run on himachal (runs the full pyramid).
+    - cron: '0 5 * * *'
 
 jobs:
-  python:
+  # ── L1: adapter round-trips (fast, no display) ──────────────────────
+
+  l1-suite-common:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - name: Byte-compile the package
+      - name: Byte-compile suite_common
         run: python -m compileall suite_common
-      - name: Run unit tests
+      - name: Run fileio_base unit tests
         run: python tests/test_fileio.py
+
+  # ── L2/L3: dogtail GUI tests (nightly, on himachal) ────────────────
+
+  l2-l3-nightly:
+    runs-on: self-hosted
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout tables
+        uses: actions/checkout@v4
+        with:
+          repository: hanthor/tables
+          path: ../tables
+      - name: Checkout decks
+        uses: actions/checkout@v4
+        with:
+          repository: hanthor/decks
+          path: ../decks
+      - name: Run Tables GUI test (L2)
+        run: just guitest
+        working-directory: ../tables
+      - name: Run Tables formula conformance (L2)
+        run: just formulatest
+        working-directory: ../tables
+      - name: Run Decks GUI test (L2)
+        run: just guitest
+        working-directory: ../decks
+      - name: Run Tables L3 E2E
+        run: just e2etest
+        working-directory: ../tables
+      - name: Run Decks L3 E2E
+        run: just e2etest
+        working-directory: ../decks
