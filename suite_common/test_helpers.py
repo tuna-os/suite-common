@@ -85,7 +85,7 @@ def find_widget(root, name=None, role=None, showing_only=True):
         if showing_only and not root.getState().contains(pyatspi.STATE_SHOWING):
             return None
         name_ok = name is None or root.name == name
-        role_ok = role is None or root.getRoleName() == role
+        role_ok = role is None or (root.roleName if hasattr(root, 'roleName') else root.get_role_name()) == role
         if name_ok and role_ok:
             return root
         for child in root.children:
@@ -102,7 +102,7 @@ def dump_tree(root, indent=0, max_depth=4):
     if indent > max_depth:
         return
     try:
-        role = root.getRoleName()
+        role = root.roleName if hasattr(root, 'roleName') else root.get_role_name()
         name = root.name
         print(f'{"  " * indent}[{role}] {name}')
         for child in root.children:
