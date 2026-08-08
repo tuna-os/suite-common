@@ -3,9 +3,6 @@ name: CI (suite-common)
 on:
   push:
   pull_request:
-  schedule:
-    # Nightly L2/L3 dogtail run on himachal (runs the full pyramid).
-    - cron: '0 5 * * *'
 
 jobs:
   # ── L1: adapter round-trips (fast, no display) ──────────────────────
@@ -22,35 +19,9 @@ jobs:
       - name: Run fileio_base unit tests
         run: python tests/test_fileio.py
 
-  # ── L2/L3: dogtail GUI tests (nightly, on himachal) ────────────────
-
-  l2-l3-nightly:
-    runs-on: ubuntu-24.04
-    if: github.event_name == 'schedule'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Checkout tables
-        uses: actions/checkout@v4
-        with:
-          repository: tuna-os/tables
-          path: ../tables
-      - name: Checkout decks
-        uses: actions/checkout@v4
-        with:
-          repository: tuna-os/decks
-          path: ../decks
-      - name: Run Tables GUI test (L2)
-        run: just guitest
-        working-directory: ../tables
-      - name: Run Tables formula conformance (L2)
-        run: just formulatest
-        working-directory: ../tables
-      - name: Run Decks GUI test (L2)
-        run: just guitest
-        working-directory: ../decks
-      - name: Run Tables L3 E2E
-        run: just e2etest
-        working-directory: ../tables
-      - name: Run Decks L3 E2E
-        run: just e2etest
-        working-directory: ../decks
+  # The L2/L3 dogtail nightly that used to live here was removed: it drove
+  # `just guitest` / `formulatest` / `e2etest` inside tuna-os/tables and
+  # tuna-os/decks, both of which have since been folded into
+  # tuna-os/gtk-office-suite as workspace members. That repo runs its own
+  # GUI suite (`.github/workflows/gui-tests.yml`), so the coverage lives
+  # there now. See the PR that removed this for the full reasoning.
