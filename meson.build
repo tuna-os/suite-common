@@ -12,4 +12,5 @@ suite_common_sources = files(
   'suite_common/window.py',
   'suite_common/webview.py',
   'suite_common/dialogs.py',
+  'suite_common/shortcuts_presets.py',
 )

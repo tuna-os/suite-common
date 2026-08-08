@@ -8,6 +8,8 @@ gi.require_version('Adw', '1')
 
 from gi.repository import Gtk, Gio, Adw  # noqa: E402
 
+from . import shortcuts_presets  # noqa: E402
+
 # _() for translations.  The launcher script (tables.in / decks.in) sets
 # the text domain; this import provides a fallback during development.
 try:
@@ -55,45 +57,45 @@ class SuiteApplication(Adw.Application):
         self.app_name = app_name
         self.version = version
 
-        # Keyboard shortcuts shown in the Ctrl+? overlay.
-        # Marked for translation with _().  Apps may extend after super().__init__().
-        self.shortcuts = {
-            _('File'): [
-                ('<primary>n', _('New')),
-                ('<primary>o', _('Open')),
-                ('<primary>s', _('Save')),
-                ('<primary><shift>s', _('Save As')),
-                ('<primary>w', _('Close')),
-                ('<primary>p', _('Print / Export')),
-                ('<primary>q', _('Quit')),
-            ],
-            _('Edit'): [
-                ('<primary>z', _('Undo')),
-                ('<primary><shift>z', _('Redo')),
-            ],
-            _('View'): [
-                ('<primary>comma', _('Preferences')),
-                ('<primary>question', _('Keyboard Shortcuts')),
-            ],
-        }
+        # Load the saved shortcut preset (or the Google Docs default).
+        self._shortcut_preset = shortcuts_presets.load_preset(application_id)
+
+        # Build the initial shortcuts display dict from preset defaults.
+        self.shortcuts = shortcuts_presets.build_shortcuts_display(
+            self._shortcut_preset)
+
+        # ── Register all actions (accelerators come from the preset) ──
+        preset_accels = shortcuts_presets.PRESETS[self._shortcut_preset]
 
         # ── File ────────────────────────────────────────────────────
-        self._add_action('new', self._on_new, ['<primary>n'])
-        self._add_action('open', self._on_open, ['<primary>o'])
-        self._add_action('save', self._on_save, ['<primary>s'])
-        self._add_action('save_as', self._on_save_as, ['<primary><shift>s'])
-        self._add_action('close', self._on_close, ['<primary>w'])
-        self._add_action('print', self._on_print, ['<primary>p'])
+        self._add_action('new', self._on_new,
+                         preset_accels.get('app.new', ['<primary>n']))
+        self._add_action('open', self._on_open,
+                         preset_accels.get('app.open', ['<primary>o']))
+        self._add_action('save', self._on_save,
+                         preset_accels.get('app.save', ['<primary>s']))
+        self._add_action('save_as', self._on_save_as,
+                         preset_accels.get('app.save_as', ['<primary><shift>s']))
+        self._add_action('close', self._on_close,
+                         preset_accels.get('app.close', ['<primary>w']))
+        self._add_action('print', self._on_print,
+                         preset_accels.get('app.print', ['<primary>p']))
 
         # ── Edit ────────────────────────────────────────────────────
-        self._add_action('undo', self._on_undo, ['<primary>z'])
-        self._add_action('redo', self._on_redo, ['<primary><shift>z', '<primary>y'])
+        self._add_action('undo', self._on_undo,
+                         preset_accels.get('app.undo', ['<primary>z']))
+        self._add_action('redo', self._on_redo,
+                         preset_accels.get('app.redo',
+                                           ['<primary><shift>z', '<primary>y']))
 
         # ── App ─────────────────────────────────────────────────────
-        self._add_action('quit', lambda *a: self.quit(), ['<primary>q'])
+        self._add_action('quit', lambda *a: self.quit(),
+                         preset_accels.get('app.quit', ['<primary>q']))
         self._add_action('about', self._on_about)
-        self._add_action('preferences', self._on_preferences, ['<primary>comma'])
-        self._add_action('shortcuts', self._on_shortcuts, ['<primary>question'])
+        self._add_action('preferences', self._on_preferences,
+                         preset_accels.get('app.preferences', ['<primary>comma']))
+        self._add_action('shortcuts', self._on_shortcuts,
+                         preset_accels.get('app.shortcuts', ['<primary>question']))
 
     # ── Window dispatch ──────────────────────────────────────────────
 
@@ -165,9 +167,34 @@ class SuiteApplication(Adw.Application):
 
     def _on_shortcuts(self, *args):
         from .dialogs import build_shortcuts_dialog
+        # Rebuild shortcuts display from the current preset so the
+        # overlay always shows the active accelerators.
+        self.shortcuts = shortcuts_presets.build_shortcuts_display(
+            self._shortcut_preset)
         win = build_shortcuts_dialog(self.shortcuts)
         win.set_transient_for(self.props.active_window)
         win.present()
+
+    # ── Shortcut preset ──────────────────────────────────────────
+
+    def get_shortcut_preset(self):
+        """Return the current shortcut preset key."""
+        return self._shortcut_preset
+
+    def set_shortcut_preset(self, preset_key):
+        """Switch to *preset_key* and persist the choice.
+
+        Updates all Gio.Action accelerators and the shortcuts overlay
+        display dictionary.
+        """
+        if preset_key not in shortcuts_presets.PRESETS:
+            return
+        self._shortcut_preset = preset_key
+        accels = shortcuts_presets.PRESETS[preset_key]
+        for action_name, accel_list in accels.items():
+            self.set_accels_for_action(action_name, accel_list)
+        self.shortcuts = shortcuts_presets.build_shortcuts_display(preset_key)
+        shortcuts_presets.save_preset(self.get_application_id(), preset_key)
 
     def _on_about(self, *args):
         about = Adw.AboutDialog(
