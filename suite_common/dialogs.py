@@ -8,6 +8,8 @@ gi.require_version('Adw', '1')
 
 from gi.repository import Gtk, Adw  # noqa: E402
 
+from . import shortcuts_presets  # noqa: E402
+
 
 class SuitePreferencesDialog(Adw.PreferencesDialog):
     """A minimal preferences scaffold. Apps add their own groups/rows."""
@@ -18,6 +20,21 @@ class SuitePreferencesDialog(Adw.PreferencesDialog):
         self.set_search_enabled(True)
         page = Adw.PreferencesPage(title='General',
                                    icon_name='preferences-system-symbolic')
+
+        # ── Keyboard shortcuts ─────────────────────────────────
+        self.shortcuts_group = Adw.PreferencesGroup(title='Keyboard Shortcuts')
+        preset_keys = list(shortcuts_presets.PRESETS.keys())
+        preset_labels = [shortcuts_presets.PRESET_LABELS[k] for k in preset_keys]
+        self.shortcut_preset_row = Adw.ComboRow(
+            title='Shortcut Preset',
+            subtitle='Choose the keyboard shortcut convention',
+            model=Gtk.StringList.new(preset_labels))
+        self.shortcut_preset_row.connect(
+            'notify::selected', self._on_preset_changed)
+        self.shortcuts_group.add(self.shortcut_preset_row)
+        page.add(self.shortcuts_group)
+
+        # ── Appearance ─────────────────────────────────────────
         self.general_group = Adw.PreferencesGroup(title='Appearance')
 
         # A real, working preference: force dark style via the style manager.
@@ -31,10 +48,28 @@ class SuitePreferencesDialog(Adw.PreferencesDialog):
         page.add(self.general_group)
         self.add(page)
 
+        # Set the current preset selection after the ComboRow is built.
+        self._preset_keys = preset_keys
+        try:
+            idx = preset_keys.index(
+                self.get_application().get_shortcut_preset())
+            self.shortcut_preset_row.set_selected(idx)
+        except (AttributeError, ValueError):
+            self.shortcut_preset_row.set_selected(0)
+
     def _on_dark_toggled(self, row, _param):
         manager = Adw.StyleManager.get_default()
         manager.set_color_scheme(
             Adw.ColorScheme.FORCE_DARK if row.get_active() else Adw.ColorScheme.DEFAULT)
+
+    def _on_preset_changed(self, row, _param):
+        idx = row.get_selected()
+        if 0 <= idx < len(self._preset_keys):
+            preset_key = self._preset_keys[idx]
+            try:
+                self.get_application().set_shortcut_preset(preset_key)
+            except AttributeError:
+                pass
 
 
 def build_shortcuts_dialog(groups):
