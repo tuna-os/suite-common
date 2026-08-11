@@ -1,12 +1,25 @@
-# suite-common
+# suite-common (DEPRECATED)
+
+> ⚠️ **DEPRECATED — Superseded by the Rust rewrite.**
+>
+> This Python library is in **bugfix-only maintenance**. New feature development
+> has moved to the [gtk-office-suite](https://github.com/tuna-os/gtk-office-suite)
+> monorepo, where the canonical `suite-common` implementation is the Rust crate
+> (gtk4-rs 0.11 / libadwaita 0.9, plus the `suite-common-core` sibling). The Rust
+> apps are already distributed via Flatpak as `org.tunaos.letters-rust`,
+> `org.tunaos.tables-rust`, and `org.tunaos.decks-rust`.
+>
+> See [gtk-office-suite#82](https://github.com/tuna-os/gtk-office-suite/issues/82)
+> for the migration plan and [tunaos#517](https://github.com/tuna-os/tunaos/issues/517)
+> for the namespace-collision tracking.
 
 Shared scaffold for the [TunaOS](https://github.com/tuna-os) GNOME office suite:
 
 | App | Repo |
 |-----|------|
-| **Letters** | [hanthor/letters](https://github.com/hanthor/letters) |
-| **Tables** | [hanthor/tables](https://github.com/hanthor/tables) |
-| **Decks** | [hanthor/decks](https://github.com/hanthor/decks) |
+| **Letters** | [tuna-os/letters](https://github.com/tuna-os/letters) |
+| **Tables** | [tuna-os/tables](https://github.com/tuna-os/tables) |
+| **Decks** | [tuna-os/decks](https://github.com/tuna-os/decks) |
 
 Suite-common is extracted from Letters and consumed by all three apps as a
 [meson subproject](https://mesonbuild.com/Subprojects.html).  It provides the

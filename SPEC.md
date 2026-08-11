@@ -6,16 +6,16 @@ that share a common scaffold. It completes the set started by
 
 | App | Role | Status |
 |-----|------|--------|
-| **[Letters](https://github.com/hanthor/letters)** | Word processor | exists; **migrating onto suite-common** (reference consumer) |
-| **[Tables](https://github.com/hanthor/tables)** | Spreadsheet (Excel-equivalent) | this suite |
-| **[Decks](https://github.com/hanthor/decks)** | Presentation (PowerPoint-equivalent) | this suite |
+| **[Letters](https://github.com/tuna-os/letters)** | Word processor | exists; **migrating onto suite-common** (reference consumer) |
+| **[Tables](https://github.com/tuna-os/tables)** | Spreadsheet (Excel-equivalent) | this suite |
+| **[Decks](https://github.com/tuna-os/decks)** | Presentation (PowerPoint-equivalent) | this suite |
 
 This repo, **`suite-common`**, holds the shared code consumed by all three apps as a
 **meson subproject**. It is **extracted from Letters** — Letters is both the source of the
 pattern and the first consumer, so migrating Letters onto `suite-common` is how we dogfood
 the extraction. Upstream Letters lives at
 [codeberg.org/eyekay/letters](https://codeberg.org/eyekay/letters); the suite tracks the
-fork at [hanthor/letters](https://github.com/hanthor/letters).
+fork at [tuna-os/letters](https://github.com/tuna-os/letters).
 
 ## The Letters pattern (what we inherit)
 
@@ -75,7 +75,7 @@ This is the structural analogue of Letters' `pypandoc.convert_file(...)`.
 
 ```
 meson.build
-io.github.hanthor.<app>.json   # Flatpak: GNOME 50 runtime + vendored JS + pip libs
+io.github.hanthor.<app>.json   # Flatpak: GNOME 50 runtime + vendored JS + pip libs (historical; apps ship as org.tunaos.*-rust)
 data/                          # icons, .desktop, gschema, appdata/metainfo
 po/
 src/
