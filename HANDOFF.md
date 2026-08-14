@@ -18,7 +18,7 @@ in-process Python libs for file I/O. Best-of-breed engines per app. Shared code 
 - **decks** — presentation. SPEC.md only so far. 11 issues. Engines: Fabric.js + Reveal.js
   (MIT); I/O: python-pptx/odfpy.
 - **letters** — existing fork (upstream codeberg.org/eyekay/letters). 5 migration issues
-  to adopt suite-common. Local checkout: /home/james/dev/letters.
+  to adopt suite-common. Local checkout: `letters` (clone of the upstream fork).
 
 ## Engine/license decisions (locked with user)
 - Best-of-breed per app (NOT unified Univer). Two separate apps sharing suite-common.
@@ -27,17 +27,17 @@ in-process Python libs for file I/O. Best-of-breed engines per app. Shared code 
 - App IDs: `io.github.hanthor.tables`, `io.github.hanthor.decks` (Flathub GitHub convention).
 
 ## Build infra
-- Build host: SSH `himachal` (x86_64, tuna-os workstation). 533G free at ~.
+- Build host: a tuna-os workstation (x86_64) reachable over SSH.
 - Toolchain there: `just`, `flatpak`, `git`, GNOME Platform/Sdk **50**, **org.flatpak.Builder**
   (flatpak). NO system flatpak-builder — use `flatpak run org.flatpak.Builder`.
-- GitHub push works from himachal as hanthor (SSH).
+- GitHub push works from the build host over SSH.
 - Pattern: `just setup` (clone suite-common into subprojects/), `just build` (org.flatpak.Builder
   --user --install), `just run` / `just smoke`. Build artifacts kept in ~/.cache/tables-flatpak
   so the manifest's `type: dir` source only copies sources.
 
 ## ⚠️ Environment gotchas
-- **Local dev box (rpi) root disk is 100% FULL** — cannot write app trees locally except
-  /tmp (tmpfs). All scaffold files staged in /tmp/work, pushed via git from himachal.
+- **Local dev box root disk is 100% FULL** — cannot write app trees locally except
+  /tmp (tmpfs). All scaffold files staged in /tmp/work, pushed via git from the build host.
 - /tmp files have vanished once unexpectedly — verify after writing.
 - Running GUI flatpak over SSH needs the session's WAYLAND_DISPLAY/XDG_RUNTIME_DIR.
 

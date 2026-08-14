@@ -1,7 +1,7 @@
 # Comprehensive Test Suite — Specification
 
 Status: proposed. Applies to the suite (suite-common, Tables, Decks; Letters where it
-consumes suite-common). Build/run host: `himachal` (Flatpak via org.flatpak.Builder).
+consumes suite-common). Build/run host: a tuna-os workstation (Flatpak via org.flatpak.Builder).
 
 ## 0. The question this answers
 
@@ -77,7 +77,7 @@ Fixtures live in `tests/fixtures/`. Each case: **load fixture → GUI action(s) 
 
 ## 4. Driving the GUI (dogtail) — patterns & hard limits
 
-**Patterns (proven on himachal):**
+**Patterns (proven on the build host):**
 - Use **AT-SPI actions** (`node.doActionNamed('click')`), never mouse synthesis — there is no
   X display on Wayland (`.click()` → "Bad display name").
 - GTK4 toggle buttons expose **`STATE_PRESSED`**, not `STATE_CHECKED` — assert with pyatspi.
@@ -132,8 +132,8 @@ validation, and standards formula vectors) over real documents — which is what
 ## 6. Execution & CI
 - **Layer 1**: plain `pytest`, no display — runs in GitHub Actions today (suite-common CI model).
 - **Layer 2**: headless Flatpak; needs a nested compositor (`weston --headless` / `mutter
-  --headless`) + at-spi in CI, or runs on himachal.
-- **Layer 3 (dogtail)**: real session — `just guitest` on himachal now; schedule nightly.
+  --headless`) + at-spi in CI, or runs on the build host.
+- **Layer 3 (dogtail)**: real session — `just guitest` on the build host now; schedule nightly.
   Mitigate flakiness with generous waits, AT-SPI actions, retries, and a fresh `flatpak kill`
   before each run (the app is single-instance).
 
