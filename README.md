@@ -6,8 +6,10 @@
 > has moved to the [gtk-office-suite](https://github.com/tuna-os/gtk-office-suite)
 > monorepo, where the canonical `suite-common` implementation is the Rust crate
 > (gtk4-rs 0.11 / libadwaita 0.9, plus the `suite-common-core` sibling). The Rust
-> apps are already distributed via Flatpak as `org.tunaos.letters-rust`,
-> `org.tunaos.tables-rust`, and `org.tunaos.decks-rust`.
+> apps are distributed via Flatpak as `org.tunaos.letters`,
+> `org.tunaos.tables`, and `org.tunaos.decks` (the historical
+> `org.tunaos.letters-rust` / `tables-rust` / `decks-rust` suffixes were
+> dropped — the plain IDs now carry the Rust builds in the tuna-os remote).
 >
 > See [gtk-office-suite#82](https://github.com/tuna-os/gtk-office-suite/issues/82)
 > for the migration plan and [tunaos#517](https://github.com/tuna-os/tunaos/issues/517)
