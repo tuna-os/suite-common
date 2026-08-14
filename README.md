@@ -13,13 +13,16 @@
 > for the migration plan and [tunaos#517](https://github.com/tuna-os/tunaos/issues/517)
 > for the namespace-collision tracking.
 
-Shared scaffold for the [TunaOS](https://github.com/tuna-os) GNOME office suite:
+Shared scaffold for the [TunaOS](https://github.com/tuna-os) GNOME office suite. The three apps were extracted into the archived
+[tuna-os/letters](https://github.com/tuna-os/letters), [tuna-os/tables](https://github.com/tuna-os/tables), and
+[tuna-os/decks](https://github.com/tuna-os/decks) repos; all three now live in the
+[gtk-office-suite](https://github.com/tuna-os/gtk-office-suite) monorepo (`letters/`, `tables/`, `decks/` crates):
 
-| App | Repo |
-|-----|------|
-| **Letters** | [tuna-os/letters](https://github.com/tuna-os/letters) |
-| **Tables** | [tuna-os/tables](https://github.com/tuna-os/tables) |
-| **Decks** | [tuna-os/decks](https://github.com/tuna-os/decks) |
+| App | Location |
+|-----|----------|
+| **Letters** | [tuna-os/gtk-office-suite](https://github.com/tuna-os/gtk-office-suite) `letters/` |
+| **Tables** | [tuna-os/gtk-office-suite](https://github.com/tuna-os/gtk-office-suite) `tables/` |
+| **Decks** | [tuna-os/gtk-office-suite](https://github.com/tuna-os/gtk-office-suite) `decks/` |
 
 Suite-common is extracted from Letters and consumed by all three apps as a
 [meson subproject](https://mesonbuild.com/Subprojects.html).  It provides the
