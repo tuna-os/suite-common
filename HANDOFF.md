@@ -44,19 +44,19 @@ in-process Python libs for file I/O. Best-of-breed engines per app. Shared code 
 ## First tracer bullet (this session)
 Tables = blank libadwaita window (ToolbarView + HeaderBar + TabView + StatusPage),
 pure-Python UI (no Blueprint/gresource yet) consuming `suite_common`. Goal: prove the
-himachal flatpak build+run pipeline. UI built in code to minimize first-build risk.
+the build-host flatpak build+run pipeline. UI built in code to minimize first-build risk.
 
 ## Status / next steps
 - [x] Push suite-common code → hanthor/suite-common
 - [x] Push tables code → hanthor/tables
-- [x] `just build` tables on himachal — **GREEN** (installs app/io.github.hanthor.tables/x86_64/master)
-- [x] `just run`/smoke on himachal Wayland (wayland-0) — **app presents window, no errors** (tables #1 done)
+- [x] `just build` tables on the build host — **GREEN** (installs app/io.github.hanthor.tables/x86_64/master)
+- [x] `just run`/smoke on the build host Wayland (wayland-0) — **app presents window, no errors** (tables #1 done)
 - [ ] tables #2 (embed Jspreadsheet CE webview) — first WebKit slice
 - [ ] decks scaffold mirroring tables
 - [ ] suite-common #2 WebKit bridge (port from Letters window.py new_webview/run_js)
 
 ### FINAL: all 31 issues CLOSED (suite-common 5, tables 10, decks 11, letters 5).
-- Every greenfield issue built as a Flatpak on himachal and headlessly tested
+- Every greenfield issue built as a Flatpak on the build host and headlessly tested
   (tables: verify/csvtest/fmttest/multitest/styletest; decks: verify/slidetest/
   presenttest/decktest/pdftest; suite-common: CI green; letters: just verify).
 - Letters kept minimal per user direction: consumes suite-common (subproject) +
@@ -67,7 +67,7 @@ himachal flatpak build+run pipeline. UI built in code to minimize first-build ri
   StatusPage, AT-SPI bridging for the web canvases.
 
 ### Issue progress (historical)
-- CLOSED (verified on himachal): suite-common #1-#5 (all); tables #1-#6, #8, #9, #10;
+- CLOSED (verified on the build host): suite-common #1-#5 (all); tables #1-#6, #8, #9, #10;
   decks #1-#11 (all).  (25 issues)
 - Test recipes per repo: tables `just verify|csvtest|fmttest|multitest`;
   decks `just verify|slidetest|presenttest|decktest|pdftest`; letters `just verify`.
@@ -75,7 +75,7 @@ himachal flatpak build+run pipeline. UI built in code to minimize first-build ri
   styles; needs getStyle+openpyxl style mapping); letters #1 epic, #3 (bridge), #4 (chrome),
   #5 (file-IO) — deeper behaviour-preserving refactors of Letters' integrated editor.
 - letters #2 (subproject): DONE — suite-common is a meson subproject, importable, Letters
-  builds + launches on himachal. Bonus: fixed 3 pre-existing Letters build/runtime bugs
+  builds + launches on the build host. Bonus: fixed 3 pre-existing Letters build/runtime bugs
   (stale weasyprint wheel 404 → network pip; window.blp breakpoint `setters:` + `styles[];`
   syntax drift; WebKit 6.0 `set_enable_spell_checking` removed → guarded).
 
@@ -84,12 +84,12 @@ himachal flatpak build+run pipeline. UI built in code to minimize first-build ri
   else a stale instance is just *activated* and your --env (selftest) is ignored → empty log.
 - Need the session display: `XDG_RUNTIME_DIR=/run/user/$(id -u) WAYLAND_DISPLAY=wayland-0`.
 - Python stdout is buffered → use `--env=PYTHONUNBUFFERED=1` and `flush=True` for bridge asserts.
-- INCREMENTAL RSYNC BUG: `rsync src/x himachal:.../app/` flattens to `app/x`. ALWAYS
-  `rsync -az --delete /tmp/work/ himachal:~/dev/suite-work/` (whole tree) then `cp -a .../src/. src/`.
+- INCREMENTAL RSYNC BUG: `rsync src/x <host>:.../app/` flattens to `app/x`. ALWAYS
+  `rsync -az --delete /tmp/work/ <host>:~/dev/suite-work/` (whole tree) then `cp -a .../src/. src/`.
 - pip libs in flatpak: python3-deps module with `build-options.build-args:["--share=network"]`
-  (himachal pipeline). For Flathub → vendored wheels.
+  (build-host pipeline). For Flathub → vendored wheels.
 
-### Verified build recipe (himachal)
+### Verified build recipe (build host)
 - Project MUST live under `$HOME` (flatpaks get a private /tmp). Working copy: `~/dev/tables`.
 - `just build` = `flatpak run --cwd="$PWD" --filesystem=host org.flatpak.Builder --force-clean
   --user --install --install-deps-from=flathub --state-dir=... --repo=... <build> <manifest>`.
@@ -98,6 +98,6 @@ himachal flatpak build+run pipeline. UI built in code to minimize first-build ri
   only sources get copied. suite-common comes in via `just setup` (git clone into subprojects/).
 
 ## Key source refs
-- Letters meson/launcher pattern: /home/james/dev/letters/src/{meson.build,letters.in,main.py,window.py}
+- Letters meson/launcher pattern: `letters/src/{meson.build,letters.in,main.py,window.py}`
 - Letters WebKit bridge to port: src/window.py ~L287 new_webview(), ~L376 run_js(), ~L316 pypandoc.
-- Plan file: /home/james/.claude/plans/partitioned-meandering-raven.md
+- Plan file: ~/.claude/plans/partitioned-meandering-raven.md
