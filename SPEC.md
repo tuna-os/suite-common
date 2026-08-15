@@ -2,7 +2,7 @@
 
 A small, FOSS office suite for the GNOME desktop, built as **separate libadwaita apps**
 that share a common scaffold. It completes the set started by
-[**Letters**](https://github.com/codelogistics/letters) (word processor):
+[**Letters**](https://codeberg.org/eyekay/letters) (word processor):
 
 | App | Role | Status |
 |-----|------|--------|
