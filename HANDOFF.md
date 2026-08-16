@@ -9,7 +9,7 @@ Pattern (from Letters): pure libadwaita chrome wrapping a `WebKit.WebView` engin
 in-process Python libs for file I/O. Best-of-breed engines per app. Shared code in
 `suite-common` (meson subproject). Letters migrates onto suite-common too.
 
-## Repos (all under github.com/hanthor)
+## Repos (all under github.com/tuna-os)
 - **suite-common** — shared scaffold. Has SPEC.md + (this session) minimal `suite_common`
   Python package (`SuiteApplication`, `SuiteWindow`). 5 issues.
 - **tables** — spreadsheet. SPEC.md + (this session) buildable blank-window scaffold +
