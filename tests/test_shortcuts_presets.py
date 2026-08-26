@@ -133,3 +133,39 @@ def test_save_preset_creates_dirs(tmp_path, monkeypatch):
     monkeypatch.setattr(sp, '_CONFIG_BASE', str(tmp_path))
     sp.save_preset('org.tunaos.letters', 'libreoffice')
     assert sp.load_preset('org.tunaos.letters') == 'libreoffice'
+
+
+def run_all_tests():
+    import tempfile
+    from unittest.mock import patch
+    
+    test_preset_keys_complete()
+    test_presets_share_action_set()
+    test_default_preset_present()
+    test_accelerator_syntax()
+    test_accelerators_are_gtk_syntax()
+    test_save_as_differs_across_presets()
+    test_macos_uses_meta()
+    test_build_shortcuts_display_default()
+    test_build_shortcuts_display_macos()
+    test_build_shortcuts_display_word_f12()
+    test_build_shortcuts_display_unknown_preset_falls_back()
+    
+    class DummyMonkeyPatch:
+        def setattr(self, obj, attr, val):
+            setattr(obj, attr, val)
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        mp = DummyMonkeyPatch()
+        test_load_preset_default_when_missing(tmp_dir, mp)
+        test_load_preset_roundtrip(tmp_dir, mp)
+        test_load_preset_ignores_bad_json(tmp_dir, mp)
+        test_load_preset_ignores_unknown_key(tmp_dir, mp)
+        test_save_preset_creates_dirs(tmp_dir, mp)
+
+
+if __name__ == '__main__':
+    run_all_tests()
+    print('shortcuts_presets tests: PASS')
+
+

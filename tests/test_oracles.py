@@ -83,7 +83,7 @@ def test_soffice_to_csv_conversion_failure(monkeypatch, tmp_path):
 # ── audit_ooxml ──────────────────────────────────────────────────────────
 
 def test_audit_ooxml_absent_module(monkeypatch):
-    monkeypatch.setattr(oracles, '_get_openxml_audit', lambda: None)
+    monkeypatch.setattr(oracles, '_OPENXML_AUDIT', False)
     assert oracles.audit_ooxml('/tmp/x.xlsx') is None
 
 
@@ -165,10 +165,61 @@ def test_assert_matches_oracle_ooxml_invalid_asserts(monkeypatch, tmp_path):
         pass
 
 
-# ── tools_available ──────────────────────────────────────────────────────
-
 def test_tools_available(monkeypatch):
     monkeypatch.setattr(oracles, '_soffice', lambda: '/usr/bin/soffice')
     monkeypatch.setattr(oracles, '_get_openxml_audit', lambda: object())
     avail = oracles.tools_available()
     assert avail == {'soffice': True, 'openxml_audit': True}
+
+
+def run_all_tests():
+    class DummyMonkeyPatch:
+        def __init__(self):
+            self._saved = []
+        def setattr(self, obj, attr, val):
+            self._saved.append((obj, attr, getattr(obj, attr, None)))
+            setattr(obj, attr, val)
+        def undo(self):
+            for obj, attr, old in reversed(self._saved):
+                if old is None and hasattr(obj, attr):
+                    delattr(obj, attr)
+                else:
+                    setattr(obj, attr, old)
+            self._saved.clear()
+
+    mp = DummyMonkeyPatch()
+
+    def run_with_mp(func, *args):
+        try:
+            func(mp, *args)
+        finally:
+            mp.undo()
+            oracles._OPENXML_AUDIT = None
+
+    run_with_mp(test_soffice_found)
+    run_with_mp(test_soffice_missing)
+    run_with_mp(test_soffice_version_failure)
+    run_with_mp(test_soffice_to_csv_missing_soffice)
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        from pathlib import Path
+        p = Path(tmp_dir)
+        run_with_mp(test_soffice_to_csv_success, p)
+        run_with_mp(test_soffice_to_csv_conversion_failure, p)
+        run_with_mp(test_assert_matches_oracle_csv_contains, p)
+        run_with_mp(test_assert_matches_oracle_csv_asserts, p)
+        run_with_mp(test_assert_matches_oracle_skips_when_soffice_missing, p)
+        run_with_mp(test_assert_matches_oracle_ooxml_valid, p)
+        run_with_mp(test_assert_matches_oracle_ooxml_invalid_asserts, p)
+
+    run_with_mp(test_audit_ooxml_absent_module)
+    run_with_mp(test_audit_ooxml_valid)
+    run_with_mp(test_audit_ooxml_invalid)
+    run_with_mp(test_tools_available)
+
+
+if __name__ == '__main__':
+    run_all_tests()
+    print('oracles tests: PASS')
+
+
