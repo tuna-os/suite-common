@@ -70,7 +70,7 @@ from suite_common.webview import SuiteWebView, build_document
 
 ```bash
 # Run the suite-common unit tests
-python3 tests/test_fileio.py
+pytest tests/
 
 # Build & test an app (requires Flatpak + org.flatpak.Builder)
 cd ../tables
