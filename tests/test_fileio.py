@@ -34,8 +34,16 @@ def test_unknown_extension_raises():
     try:
         fio.read('/tmp/nope.unknownext')
     except ValueError:
-        return
-    raise AssertionError('expected ValueError for unknown extension')
+        pass
+    else:
+        raise AssertionError('expected ValueError for unknown reader extension')
+
+    try:
+        fio.write('/tmp/nope.unknownext', 'data')
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('expected ValueError for unknown writer extension')
 
 
 if __name__ == '__main__':
@@ -43,3 +51,4 @@ if __name__ == '__main__':
     test_registry_dispatch_and_patterns()
     test_unknown_extension_raises()
     print('fileio_base tests: PASS')
+
