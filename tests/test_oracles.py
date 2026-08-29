@@ -80,6 +80,57 @@ def test_soffice_to_csv_conversion_failure(monkeypatch, tmp_path):
             assert 'conversion failed' in str(e)
 
 
+# ── soffice_to_fodp ───────────────────────────────────────────────────────
+
+def test_soffice_to_fodp_missing_soffice(monkeypatch):
+    monkeypatch.setattr(oracles, '_soffice', lambda: None)
+    try:
+        oracles.soffice_to_fodp('/tmp/x.pptx')
+        assert False, 'expected RuntimeError'
+    except RuntimeError as e:
+        assert 'soffice not found' in str(e)
+
+
+def test_soffice_to_fodp_success(monkeypatch, tmp_path):
+    monkeypatch.setattr(oracles, '_soffice', lambda: '/usr/bin/soffice')
+    src = tmp_path / 'pres.pptx'
+    src.write_bytes(b'x')
+
+    def fake_run(args, **kwargs):
+        out_dir = args[args.index('--outdir') + 1]
+        with open(os.path.join(out_dir, 'pres.fodp'), 'w') as fh:
+            fh.write('<office:document>Slide Title</office:document>')
+        return type('R', (), {'returncode': 0, 'stderr': ''})()
+
+    with patch('subprocess.run', side_effect=fake_run):
+        path, text = oracles.soffice_to_fodp(str(src))
+    assert path.endswith('pres.fodp')
+    assert 'Slide Title' in text
+
+
+def test_soffice_to_fodp_conversion_failure(monkeypatch, tmp_path):
+    monkeypatch.setattr(oracles, '_soffice', lambda: '/usr/bin/soffice')
+    src = tmp_path / 'pres.pptx'
+    src.write_bytes(b'x')
+
+    with patch('subprocess.run') as mock_run:
+        mock_run.return_value.returncode = 1
+        mock_run.return_value.stderr = 'bad pptx file'
+        try:
+            oracles.soffice_to_fodp(str(src))
+            assert False, 'expected RuntimeError'
+        except RuntimeError as e:
+            assert 'conversion failed' in str(e)
+
+
+def test_get_openxml_audit_import_error(monkeypatch):
+    monkeypatch.setattr(oracles, '_OPENXML_AUDIT', None)
+    with patch.dict('sys.modules', {'openxml_audit': None}):
+        m = oracles._get_openxml_audit()
+        assert m is None
+        assert oracles._OPENXML_AUDIT is False
+
+
 # ── audit_ooxml ──────────────────────────────────────────────────────────
 
 def test_audit_ooxml_absent_module(monkeypatch):
@@ -118,6 +169,32 @@ def test_assert_matches_oracle_csv_contains(monkeypatch, tmp_path):
                         lambda p: (str(tmp_path / 'book.csv'), 'alpha beta gamma'))
     # Should not raise.
     oracles.assert_matches_oracle(str(src), {'values_contain': ['alpha', 'gamma']})
+
+
+def test_assert_matches_oracle_csv_not_contains(monkeypatch, tmp_path):
+    src = tmp_path / 'book.xlsx'
+    src.write_bytes(b'x')
+    monkeypatch.setattr(oracles, 'soffice_to_csv',
+                        lambda p: (str(tmp_path / 'book.csv'), 'alpha beta gamma'))
+    oracles.assert_matches_oracle(str(src), {'values_not_contain': 'delta'})
+    try:
+        oracles.assert_matches_oracle(str(src), {'values_not_contain': 'beta'})
+        assert False, 'expected AssertionError'
+    except AssertionError as e:
+        assert 'unexpected' in str(e)
+
+
+def test_assert_matches_oracle_fodp_contain(monkeypatch, tmp_path):
+    src = tmp_path / 'pres.pptx'
+    src.write_bytes(b'x')
+    monkeypatch.setattr(oracles, 'soffice_to_fodp',
+                        lambda p: (str(tmp_path / 'pres.fodp'), 'slide content text'))
+    oracles.assert_matches_oracle(str(src), {'fodp_contain': 'content'})
+    try:
+        oracles.assert_matches_oracle(str(src), {'fodp_contain': 'missing'})
+        assert False, 'expected AssertionError'
+    except AssertionError as e:
+        assert 'expected' in str(e)
 
 
 def test_assert_matches_oracle_csv_asserts(monkeypatch, tmp_path):
@@ -200,13 +277,19 @@ def run_all_tests():
     run_with_mp(test_soffice_missing)
     run_with_mp(test_soffice_version_failure)
     run_with_mp(test_soffice_to_csv_missing_soffice)
+    run_with_mp(test_soffice_to_fodp_missing_soffice)
+    run_with_mp(test_get_openxml_audit_import_error)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         from pathlib import Path
         p = Path(tmp_dir)
         run_with_mp(test_soffice_to_csv_success, p)
         run_with_mp(test_soffice_to_csv_conversion_failure, p)
+        run_with_mp(test_soffice_to_fodp_success, p)
+        run_with_mp(test_soffice_to_fodp_conversion_failure, p)
         run_with_mp(test_assert_matches_oracle_csv_contains, p)
+        run_with_mp(test_assert_matches_oracle_csv_not_contains, p)
+        run_with_mp(test_assert_matches_oracle_fodp_contain, p)
         run_with_mp(test_assert_matches_oracle_csv_asserts, p)
         run_with_mp(test_assert_matches_oracle_skips_when_soffice_missing, p)
         run_with_mp(test_assert_matches_oracle_ooxml_valid, p)
@@ -221,5 +304,3 @@ def run_all_tests():
 if __name__ == '__main__':
     run_all_tests()
     print('oracles tests: PASS')
-
-
