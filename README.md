@@ -1,6 +1,10 @@
-# suite-common (DEPRECATED)
+# suite-common-python (DEPRECATED)
 
 > ⚠️ **DEPRECATED — Superseded by the Rust rewrite.**
+>
+> This repository is the legacy **Python** implementation. It is being renamed
+> to `tuna-os/suite-common-python`; the Python import name `suite_common` and
+> Meson subproject name `suite-common` remain stable for existing consumers.
 >
 > This Python library is in **bugfix-only maintenance**. New feature development
 > has moved to the [gtk-office-suite](https://github.com/tuna-os/gtk-office-suite)
