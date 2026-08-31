@@ -1,5 +1,15 @@
 # GNOME Office Suite — Architecture & `suite-common` Specification
 
+> **Historical design record — not current implementation guidance.**
+>
+> This document describes the former Python/WebKit office-suite architecture.
+> The Python library is deprecated, and the canonical implementation now lives
+> in the Rust
+> [`gtk-office-suite`](https://github.com/tuna-os/gtk-office-suite) workspace.
+> See [README.md](README.md) for repository status and [ROADMAP.md](ROADMAP.md)
+> for the lifecycle decision process. Links, statuses, app IDs, and proposed
+> architecture below are retained as historical context and may be obsolete.
+
 A small, FOSS office suite for the GNOME desktop, built as **separate libadwaita apps**
 that share a common scaffold. It completes the set started by
 [**Letters**](https://codeberg.org/eyekay/letters) (word processor):

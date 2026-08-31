@@ -1,5 +1,14 @@
 # Comprehensive Test Suite — Specification
 
+> **Historical test plan — not current execution guidance.**
+>
+> This proposal targeted the former Python/WebKit applications and includes
+> host-specific commands and assumptions that are no longer supported. The
+> canonical applications now live in the Rust
+> [`gtk-office-suite`](https://github.com/tuna-os/gtk-office-suite) workspace.
+> For the tests that remain executable in this repository, use the commands in
+> [README.md](README.md); see [ROADMAP.md](ROADMAP.md) for lifecycle status.
+
 Status: proposed. Applies to the suite (suite-common, Tables, Decks; Letters where it
 consumes suite-common). Build/run host: `himachal` (Flatpak via org.flatpak.Builder).
 
