@@ -1,5 +1,15 @@
 # Handoff — GNOME Office Suite (Letters / Tables / Decks)
 
+> **Historical handoff — not current operating guidance.**
+>
+> This snapshot records work on the former Python/WebKit applications. Its
+> workstation paths, build host, app IDs, issue counts, and progress notes are
+> intentionally preserved for provenance but may no longer exist or apply. The
+> Python library is deprecated; use [README.md](README.md) for current repository
+> status, [ROADMAP.md](ROADMAP.md) for its lifecycle decision process, and the
+> Rust [`gtk-office-suite`](https://github.com/tuna-os/gtk-office-suite) workspace
+> for current application development.
+
 _Last updated: 2026-06-22. Maintainer agent: Claude (Opus 4.8)._
 
 ## Goal
