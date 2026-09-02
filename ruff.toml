@@ -1,0 +1,10 @@
+target-version = "py311"
+line-length = 120
+builtins = ["_"]
+
+[lint]
+# I (isort) is intentionally excluded: this codebase's GTK/GObject-Introspection
+# modules call `gi.require_version(...)` before `from gi.repository import ...`,
+# which isort's import-sort would reorder incorrectly and break at runtime.
+select = ["E", "F", "W"]
+ignore = ["E501"]
