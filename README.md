@@ -89,5 +89,5 @@ compatibility work here.
 
 ## License
 
-GPL-3.0-or-later.  Test fixtures under `tests/fixtures/` are sourced from
+GPL-3.0-or-later.  Test fixtures under `tests/fixtures/` come from
 LibreOffice (`qa/`) under MPL-2.0 — see `tests/fixtures/PROVENANCE.md`.
